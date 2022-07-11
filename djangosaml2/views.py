@@ -213,12 +213,12 @@ class LoginView(SPConfigMixin, View):
                 },
             )
 
-        try:
-            conf = self.get_sp_config(request)
-        except SourceNotFound:  # pragma: no cover
+        #try:
+        conf = self.get_sp_config(request)
+        #except SourceNotFound:  # pragma: no cover
             # this is deprecated and it's here only for the doubts that something
             # would happen the day after I'll remove it! :)
-            return self.unknown_idp(request, idp="unknown")
+        #    return self.unknown_idp(request, idp="unknown")
 
         # is a embedded wayf or DiscoveryService needed?
         configured_idps = available_idps(conf)
