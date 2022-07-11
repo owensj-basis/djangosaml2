@@ -431,7 +431,8 @@ class AssertionConsumerServiceView(SPConfigMixin, View):
 
     def handle_acs_failure(self, request, exception=None, status=403, **kwargs):
         """Error handler if the login attempt fails. Override this to customize the error response."""
-
+        if getattr(settings, "DEBUG"):
+            raise exception
         # Backwards compatibility: if a custom setting was defined, use that one
         custom_failure_function = get_custom_setting(
             "SAML_ACS_FAILURE_RESPONSE_FUNCTION"
