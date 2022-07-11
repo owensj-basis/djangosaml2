@@ -76,6 +76,20 @@ from .utils import (
 
 logger = logging.getLogger("djangosaml2")
 
+def logout(request):
+    logout_provider = getattr(settings, "CUSTOM_LOGOUT_PROVIDER", None)
+    if logout_provider and callable(logout_provider):
+        logout_provider(request)
+    else:
+        auth.logout(request)
+
+def login(request, user):
+    login_provider = getattr(settings, "CUSTOM_LOGIN_PROVIDER", None)
+    if login_provider and callable(login_provider):
+        login_provider(request, user)
+    else:
+        auth.login(request, user)
+
 
 def _set_subject_id(session, subject_id):
     session["_saml2_subject_id"] = code(subject_id)
@@ -568,7 +582,8 @@ class AssertionConsumerServiceView(SPConfigMixin, View):
                 session_info=session_info,
             )
 
-        auth.login(self.request, user)
+        login(self.request, user)
+
         _set_subject_id(request.saml_session, session_info["name_id"])
         logger.debug("User %s authenticated via SSO.", user)
 
@@ -582,6 +597,7 @@ class AssertionConsumerServiceView(SPConfigMixin, View):
         relay_state = validate_referral_url(request, relay_state)
         logger.debug("Redirecting to the RelayState: %s", relay_state)
         return HttpResponseRedirect(relay_state)
+
 
     def post_login_hook(
         self, request: HttpRequest, user: settings.AUTH_USER_MODEL, session_info: dict
@@ -661,7 +677,7 @@ class LogoutInitView(LoginRequiredMixin, SPConfigMixin, View):
             logger.exception(f"Error Handled - SLO - unsupported binding by IDP: {exp}")
             _error = exp
 
-        auth.logout(request)
+        logout(request)
         state.sync()
 
         if _error:
@@ -763,7 +779,7 @@ class LogoutView(SPConfigMixin, View):
                     "The session does not contain the subject id for user %s. Performing local logout",
                     request.user,
                 )
-                auth.logout(request)
+                logout(request)
                 return render(request, self.logout_error_template, status=403)
 
             http_info = client.handle_logout_request(
@@ -773,7 +789,7 @@ class LogoutView(SPConfigMixin, View):
                 relay_state=data.get("RelayState", ""),
             )
             state.sync()
-            auth.logout(request)
+            logout(request)
             if (
                 http_info.get("method", "GET") == "POST"
                 and "data" in http_info
@@ -794,7 +810,7 @@ def finish_logout(request, response):
     ):
         logger.debug("Performing django logout.")
 
-        auth.logout(request)
+        logout(request)
 
         if settings.LOGOUT_REDIRECT_URL is not None:
             return HttpResponseRedirect(resolve_url(settings.LOGOUT_REDIRECT_URL))
