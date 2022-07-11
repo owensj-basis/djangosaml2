@@ -150,9 +150,6 @@ class Saml2Backend(ModelBackend):
         if not user_lookup_value:
             logger.error("Could not determine user identifier")
             return None
-        
-        if type(user_lookup_value) == list:
-            user_lookup_value = user_lookup_value[0]
 
         user, created = self.get_or_create_user(
             user_lookup_key,
