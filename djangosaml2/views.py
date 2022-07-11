@@ -275,12 +275,12 @@ class LoginView(SPConfigMixin, View):
         logger.debug(f"Trying binding {binding} for IDP {selected_idp}")
 
         # ensure our selected binding is supported by the IDP
-        try:
-            supported_bindings = get_idp_sso_supported_bindings(
-                selected_idp, config=conf
-            )
-        except saml2.s_utils.UnknownSystemEntity:
-            return self.unknown_idp(request, selected_idp)
+        # try:
+        supported_bindings = get_idp_sso_supported_bindings(
+            selected_idp, config=conf
+        )
+        # except saml2.s_utils.UnknownSystemEntity:
+        #     return self.unknown_idp(request, selected_idp)
 
         if binding not in supported_bindings:
             logger.debug(
