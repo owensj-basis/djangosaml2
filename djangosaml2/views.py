@@ -681,6 +681,8 @@ class LogoutInitView(LoginRequiredMixin, SPConfigMixin, View):
         logout(request)
         state.sync()
 
+        raise Exception("foo")
+
         if _error:
             return self.handle_unsupported_slo_exception(request, _error)
 
