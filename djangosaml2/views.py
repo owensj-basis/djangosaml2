@@ -670,6 +670,7 @@ class LogoutInitView(LoginRequiredMixin, SPConfigMixin, View):
 
         _error = None
         # try:
+        raise Exception("foo")
         result = client.global_logout(subject_id)
         # except LogoutError as exp:
         #     logger.exception(f"Error Handled - SLO not supported by IDP: {exp}")
@@ -681,7 +682,6 @@ class LogoutInitView(LoginRequiredMixin, SPConfigMixin, View):
         logout(request)
         state.sync()
 
-        raise Exception("foo")
 
         if _error:
             return self.handle_unsupported_slo_exception(request, _error)
