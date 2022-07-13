@@ -669,14 +669,14 @@ class LogoutInitView(LoginRequiredMixin, SPConfigMixin, View):
             )
 
         _error = None
-        try:
-            result = client.global_logout(subject_id)
-        except LogoutError as exp:
-            logger.exception(f"Error Handled - SLO not supported by IDP: {exp}")
-            _error = exp
-        except UnsupportedBinding as exp:
-            logger.exception(f"Error Handled - SLO - unsupported binding by IDP: {exp}")
-            _error = exp
+        # try:
+        result = client.global_logout(subject_id)
+        # except LogoutError as exp:
+        #     logger.exception(f"Error Handled - SLO not supported by IDP: {exp}")
+        #     _error = exp
+        # except UnsupportedBinding as exp:
+        #     logger.exception(f"Error Handled - SLO - unsupported binding by IDP: {exp}")
+        #     _error = exp
 
         logout(request)
         state.sync()
@@ -727,7 +727,7 @@ class LogoutInitView(LoginRequiredMixin, SPConfigMixin, View):
         For example, a site may want to perform additional logic and redirect
         users somewhere other than the LOGOUT_REDIRECT_URL.
         """
-        return HttpResponseRedirect(getattr(settings, "LOGOUT_REDIRECT_URL", "/"))
+        raise exception
 
 
 @method_decorator(csrf_exempt, name="dispatch")
