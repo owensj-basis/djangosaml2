@@ -672,7 +672,7 @@ class LogoutInitView(SPConfigMixin, View):
         # try:
         result = client.global_logout(subject_id)
 
-        raise Exception({"subject_id": subject_id, "result": result})
+        # raise Exception({"subject_id": subject_id, "result": result})
         # except LogoutError as exp:
         #     logger.exception(f"Error Handled - SLO not supported by IDP: {exp}")
         #     _error = exp
