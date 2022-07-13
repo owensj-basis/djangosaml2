@@ -652,74 +652,74 @@ class EchoAttributesView(LoginRequiredMixin, SPConfigMixin, View):
         )
 
 
-class LogoutInitView(LoginRequiredMixin, SPConfigMixin, View):
+class LogoutInitView(SPConfigMixin, View):
     """SAML Logout Request initiator
 
     This view initiates the SAML2 Logout request
     using the pysaml2 library to create the LogoutRequest.
     """
 
-    # def get(self, request, *args, **kwargs):
-    #     state, client = self.get_state_client(request)
+    def get(self, request, *args, **kwargs):
+        state, client = self.get_state_client(request)
 
-    #     subject_id = _get_subject_id(request.saml_session)
-    #     if subject_id is None:
-    #         logger.warning(
-    #             "The session does not contain the subject id for user %s", request.user
-    #         )
+        subject_id = _get_subject_id(request.saml_session)
+        if subject_id is None:
+            logger.warning(
+                "The session does not contain the subject id for user %s", request.user
+            )
 
-    #     _error = None
-    #     # try:
-    #     result = client.global_logout(subject_id)
-    #     # except LogoutError as exp:
-    #     #     logger.exception(f"Error Handled - SLO not supported by IDP: {exp}")
-    #     #     _error = exp
-    #     # except UnsupportedBinding as exp:
-    #     #     logger.exception(f"Error Handled - SLO - unsupported binding by IDP: {exp}")
-    #     #     _error = exp
+        _error = None
+        # try:
+        result = client.global_logout(subject_id)
+        # except LogoutError as exp:
+        #     logger.exception(f"Error Handled - SLO not supported by IDP: {exp}")
+        #     _error = exp
+        # except UnsupportedBinding as exp:
+        #     logger.exception(f"Error Handled - SLO - unsupported binding by IDP: {exp}")
+        #     _error = exp
 
-    #     logout(request)
-    #     state.sync()
+        logout(request)
+        state.sync()
 
 
-    #     if _error:
-    #         return self.handle_unsupported_slo_exception(request, _error)
+        if _error:
+            return self.handle_unsupported_slo_exception(request, _error)
 
-    #     if not result:
-    #         logger.error(
-    #             "Looks like the user %s is not logged in any IdP/AA", subject_id
-    #         )
-    #         return HttpResponseBadRequest("You are not logged in any IdP/AA")
+        if not result:
+            logger.error(
+                "Looks like the user %s is not logged in any IdP/AA", subject_id
+            )
+            return HttpResponseBadRequest("You are not logged in any IdP/AA")
 
-    #     if len(result) > 1:
-    #         logger.error(
-    #             "Sorry, I do not know how to logout from several sources. I will logout just from the first one"
-    #         )
+        if len(result) > 1:
+            logger.error(
+                "Sorry, I do not know how to logout from several sources. I will logout just from the first one"
+            )
 
-    #     for logout_info in result.values():
-    #         if isinstance(logout_info, tuple):
-    #             binding, http_info = logout_info
-    #             if binding == saml2.BINDING_HTTP_POST:
-    #                 logger.debug(
-    #                     "Returning form to the IdP to continue the logout process"
-    #                 )
-    #                 body = "".join(http_info["data"])
-    #                 return HttpResponse(body)
-    #             elif binding == saml2.BINDING_HTTP_REDIRECT:
-    #                 logger.debug(
-    #                     "Redirecting to the IdP to continue the logout process"
-    #                 )
-    #                 return HttpResponseRedirect(get_location(http_info))
-    #             else:
-    #                 logger.error("Unknown binding: %s", binding)
-    #                 return HttpResponseServerError("Failed to log out")
-    #         # We must have had a soap logout
-    #         return finish_logout(request, logout_info)
+        for logout_info in result.values():
+            if isinstance(logout_info, tuple):
+                binding, http_info = logout_info
+                if binding == saml2.BINDING_HTTP_POST:
+                    logger.debug(
+                        "Returning form to the IdP to continue the logout process"
+                    )
+                    body = "".join(http_info["data"])
+                    return HttpResponse(body)
+                elif binding == saml2.BINDING_HTTP_REDIRECT:
+                    logger.debug(
+                        "Redirecting to the IdP to continue the logout process"
+                    )
+                    return HttpResponseRedirect(get_location(http_info))
+                else:
+                    logger.error("Unknown binding: %s", binding)
+                    return HttpResponseServerError("Failed to log out")
+            # We must have had a soap logout
+            return finish_logout(request, logout_info)
 
-    #     logger.error(
-    #         "Could not logout because there only the HTTP_REDIRECT is supported"
-    #     )
-    #     return HttpResponseServerError("Logout Binding not supported")
+        logger.error(
+            "Could not logout because there only the HTTP_REDIRECT is supported"
+        )
+        return HttpResponseServerError("Logout Binding not supported")
 
     def handle_unsupported_slo_exception(self, request, exception, *args, **kwargs):
         """Subclasses may override this method to implement custom logic for
