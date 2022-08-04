@@ -18,10 +18,16 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("login/", views.LoginView.as_view(), name="saml2_login"),
-    path("acs/", views.AssertionConsumerServiceView.as_view(), name="saml2_acs"),
-    path("logout/", views.LogoutInitView.as_view(), name="saml2_logout"),
-    path("ls/", views.LogoutView.as_view(), name="saml2_ls"),
-    path("ls/post/", views.LogoutView.as_view(), name="saml2_ls_post"),
-    path("metadata/", views.MetadataView.as_view(), name="saml2_metadata"),
+    path("login/", views.LoginView.as_view()),
+    path("acs/", views.AssertionConsumerServiceView.as_view()),
+    path("logout/", views.LogoutInitView.as_view()),
+    path("ls/", views.LogoutView.as_view()),
+    path("ls/post/", views.LogoutView.as_view()),
+    path("metadata/", views.MetadataView.as_view()),
+    path("login", views.LoginView.as_view(), name="saml2_login"),
+    path("acs", views.AssertionConsumerServiceView.as_view(), name="saml2_acs"),
+    path("logout", views.LogoutInitView.as_view(), name="saml2_logout"),
+    path("ls", views.LogoutView.as_view(), name="saml2_ls"),
+    path("ls/post", views.LogoutView.as_view(), name="saml2_ls_post"),
+    path("metadata", views.MetadataView.as_view(), name="saml2_metadata"),
 ]
